@@ -21,7 +21,7 @@ check_file() {
     local dim
     dim=$(ffprobe -v error -select_streams v:0 \
         -show_entries stream=width,height \
-        -of default=noprint_wrappers=1:nokey=1 "$file" 2>/dev/null)
+        -of default=noprint_wrappers=1:nokey=1 "$file" 2> >(tee errors.txt >&2))
 
     local width height
     width=$(echo "$dim" | sed -n '1p')
@@ -61,7 +61,7 @@ echo ""
 
 export -f check_file
 
-parallel --bar -j "$(nproc)" check_file ::: "$PATTERN_DIR"/after/*.jpeg 2>/dev/null
+parallel --bar -j "$(nproc)" check_file ::: "$PATTERN_DIR"/after/*.jpeg 2> >(tee errors.txt >&2)
 
 echo ""
 echo "✅ Check complete!"
